@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="C:\Users\acer\Downloads\SHRI MURARI JEWELLRS PVT.LTD._LOGO_1 (1).png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#FFFFFF" />
+    <meta
+      name="description"
+      content="Shri Murari Jewellers Gold Rate Calculator"
+    />
+    <title>Shri Murari Jewellers</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+      body {
+        font-family: 'Cormorant Garamond', serif;
+      }
+      .font-tinos {
+        font-family: 'Tinos', serif;
+      }
+      .hidden {
+        display: none;
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      .animate-fade-in {
+        animation: fadeIn 0.5s ease-in-out;
+      }
+      .animate-fade-in-fast {
+        animation: fadeIn 0.2s ease-in-out;
+      }
+       @keyframes pulse {
+        50% {
+          opacity: .5;
+        }
+      }
+      .animate-pulse {
+        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      }
+    </style>
+  </head>
+  <body class="bg-white text-gray-800">
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    
+    <div id="app-container" class="min-h-screen bg-white text-gray-800 flex flex-col">
+       <!-- PIN Input Modal -->
+       <div id="pin-modal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in-fast">
+         <div class="bg-white border border-yellow-400 rounded-lg p-6 w-full max-w-xs m-4 shadow-2xl">
+           <h2 class="text-xl font-bold text-yellow-600 mb-4 text-center font-tinos">Enter Admin PIN</h2>
+           <form id="pin-form">
+             <input id="pin-input" type="password" maxlength="4" class="w-full bg-gray-100 border border-gray-300 rounded-md p-3 text-gray-900 text-center text-2xl tracking-[1rem] outline-none focus:ring-2 focus:ring-yellow-500" autocomplete="off" />
+             <p id="pin-error" class="text-red-500 text-xs text-center mt-2 h-4"></p>
+             <div class="mt-6 flex justify-end space-x-3">
+               <button type="button" id="pin-cancel-btn" class="px-4 py-2 rounded-md text-gray-600 hover:bg-gray-100 transition-colors">Cancel</button>
+               <button type="submit" class="px-4 py-2 rounded-md bg-yellow-500 text-white font-bold hover:bg-yellow-600 transition-colors">Submit</button>
+             </div>
+           </form>
+         </div>
+       </div>
+
+       <!-- Rate Update Modal -->
+       <div id="rate-modal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in-fast">
+         <div class="bg-white border border-yellow-400 rounded-lg p-6 w-full max-w-sm m-4 shadow-2xl shadow-yellow-500/10">
+           <h2 class="text-2xl font-bold text-yellow-600 mb-4 font-tinos">Update Gold Rates</h2>
+           <div class="space-y-4">
+             <div>
+               <label for="rate24k-input" class="block text-sm font-medium text-gray-600">24 Karat Rate (per 10g)</label>
+               <input type="number" id="rate24k-input" class="mt-1 w-full bg-gray-100 border border-gray-300 rounded-md p-2 text-gray-900 outline-none focus:ring-2 focus:ring-yellow-500"/>
+             </div>
+             <div>
+               <label for="rate22k-input" class="block text-sm font-medium text-gray-600">22 Karat Rate (per 10g)</label>
+               <input type="number" id="rate22k-input" class="mt-1 w-full bg-gray-100 border border-gray-300 rounded-md p-2 text-gray-900 outline-none focus:ring-2 focus:ring-yellow-500"/>
+             </div>
+             <div>
+               <label for="rate18k-input" class="block text-sm font-medium text-gray-600">18 Karat Rate (per 10g)</label>
+               <input type="number" id="rate18k-input" class="mt-1 w-full bg-gray-100 border border-gray-300 rounded-md p-2 text-gray-900 outline-none focus:ring-2 focus:ring-yellow-500"/>
+             </div>
+           </div>
+           <div class="mt-6 flex justify-end space-x-3">
+             <button id="rate-cancel-btn" class="px-4 py-2 rounded-md text-gray-600 hover:bg-gray-100 transition-colors">Cancel</button>
+             <button id="rate-save-btn" class="px-4 py-2 rounded-md bg-yellow-500 text-white font-bold hover:bg-yellow-600 transition-colors">Save</button>
+           </div>
+         </div>
+       </div>
+
+      <header class="relative p-4 text-center bg-white/80 backdrop-blur-sm sticky top-0 z-10 border-b border-gray-200">
+        <button id="admin-lock-btn" class="absolute top-1/2 left-4 -translate-y-1/2 p-2 text-gray-500 hover:text-yellow-600 hover:bg-yellow-100 rounded-full transition-colors" aria-label="Update rates">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd" />
+            </svg>
+        </button>
+        <h1 class="text-2xl md:text-3xl font-bold tracking-wider text-gray-800 font-tinos">
+          Shri Murari Jewellers <span class="text-yellow-600">Pvt. Ltd.</span>
+        </h1>
+      </header>
+
+      <main class="flex-grow container mx-auto px-4 py-4 mb-20">
+        <!-- Desktop navigation -->
+        <nav class="hidden md:flex justify-center pt-2 pb-6">
+          <div class="flex space-x-2 bg-gray-100 p-1 rounded-lg border border-gray-200">
+            <button data-tab="RATES" class="desktop-tab-btn px-6 py-2 rounded-md text-sm font-medium transition-colors">Live Rates</button>
+            <button data-tab="CALCULATOR" class="desktop-tab-btn px-6 py-2 rounded-md text-sm font-medium transition-colors">Calculator</button>
+            <button data-tab="ABOUT" class="desktop-tab-btn px-6 py-2 rounded-md text-sm font-medium transition-colors">About Us</button>
+          </div>
+        </nav>
+
+        <!-- Page Content -->
+        <div id="page-content">
+          <!-- Live Rates Page -->
+          <section id="rates-page" class="page p-4 md:p-6 text-center animate-fade-in">
+              <!-- Carousel will be inserted here by JS -->
+              <div id="rates-carousel-container"></div>
+              <div class="flex justify-center items-center gap-4 mb-2">
+                <h2 class="text-3xl md:text-4xl font-bold text-yellow-600 font-tinos">Today's Gold Rate</h2>
+                <button id="rates-share-btn" class="relative p-2 text-yellow-600 hover:text-yellow-700 hover:bg-yellow-100 rounded-full transition-colors" aria-label="Share gold rates">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" /></svg>
+                    <span id="rates-share-status" class="hidden absolute -top-7 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded-md animate-fade-in-fast">Copied!</span>
+                </button>
+              </div>
+              <p class="text-gray-600 mb-8">Price per 10 grams (excluding GST & making charges)</p>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
+                <div class="rate-card bg-white border border-yellow-400/20 rounded-lg p-6 shadow-xl shadow-yellow-500/10 text-center transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-yellow-500/25 transition-all duration-300">
+                    <h3 class="text-2xl font-bold text-yellow-600 font-tinos">24 Karat</h3>
+                    <p id="rate-24k" class="text-5xl font-bold text-gray-900 my-4 font-tinos">₹0</p>
+                    <p class="text-gray-500">99.9% Purity</p>
+                </div>
+                <div class="rate-card bg-white border border-yellow-400/20 rounded-lg p-6 shadow-xl shadow-yellow-500/10 text-center transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-yellow-500/25 transition-all duration-300">
+                    <h3 class="text-2xl font-bold text-yellow-600 font-tinos">22 Karat</h3>
+                    <p id="rate-22k" class="text-5xl font-bold text-gray-900 my-4 font-tinos">₹0</p>
+                    <p class="text-gray-500">91.6% Purity</p>
+                </div>
+                <div class="rate-card bg-white border border-yellow-400/20 rounded-lg p-6 shadow-xl shadow-yellow-500/10 text-center transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-yellow-500/25 transition-all duration-300">
+                    <h3 class="text-2xl font-bold text-yellow-600 font-tinos">18 Karat</h3>
+                    <p id="rate-18k" class="text-5xl font-bold text-gray-900 my-4 font-tinos">₹0</p>
+                    <p class="text-gray-500">75.0% Purity</p>
+                </div>
+              </div>
+              <p class="text-gray-400 mt-6 text-xs">Last updated: <span id="last-updated"></span></p>
+          </section>
+
+          <!-- Calculator Page -->
+          <section id="calculator-page" class="page hidden p-4 md:p-6 animate-fade-in">
+             <h2 class="text-3xl md:text-4xl font-bold text-yellow-600 text-center mb-6 font-tinos">Price Calculator</h2>
+             <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Input Section -->
+                <div class="bg-gray-50 p-6 rounded-lg border border-gray-200 space-y-6">
+                    <div>
+                        <label for="weight-input" class="block text-lg text-gray-700 font-semibold mb-2">Enter Weight (in grams)</label>
+                        <input id="weight-input" type="number" value="10" placeholder="e.g., 10" class="w-full bg-white border border-gray-300 rounded-lg p-3 text-gray-900 text-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition-all" />
+                    </div>
+                    <div>
+                        <label class="block text-lg text-gray-700 font-semibold mb-2">Select Purity</label>
+                        <div class="flex bg-gray-200 rounded-lg p-1">
+                            <button data-purity="22k" class="purity-btn flex-1 p-2 rounded-md font-semibold transition-colors">22 Karat</button>
+                            <button data-purity="18k" class="purity-btn flex-1 p-2 rounded-md font-semibold transition-colors">18 Karat</button>
+                        </div>
+                    </div>
+                     <div class="space-y-4 pt-4 border-t border-gray-200">
+                        <label class="flex items-center justify-between cursor-pointer">
+                            <span id="making-charge-label" class="text-gray-700">Include Making Charges (4.0%)</span>
+                            <div class="relative">
+                                <input type="checkbox" id="making-charge-toggle" checked class="sr-only" />
+                                <div class="toggle-bg block w-12 h-6 rounded-full transition-colors bg-yellow-500"></div>
+                                <div class="toggle-dot dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform translate-x-6"></div>
+                            </div>
+                        </label>
+                        <label class="flex items-center justify-between cursor-pointer">
+                            <span class="text-gray-700">Include GST (3%)</span>
+                            <div class="relative">
+                                <input type="checkbox" id="gst-toggle" checked class="sr-only" />
+                                <div class="toggle-bg block w-12 h-6 rounded-full transition-colors bg-yellow-500"></div>
+                                <div class="toggle-dot dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform translate-x-6"></div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                <!-- Calculation Breakdown -->
+                <div class="bg-yellow-500/10 p-6 rounded-lg border border-yellow-500/30 flex flex-col justify-center">
+                    <div class="space-y-3 text-lg">
+                       <div class="flex justify-between items-baseline"><span class="text-gray-600">Gold Value</span><span id="calc-gold-value" class="font-semibold text-gray-800">₹0.00</span></div>
+                       <div class="flex justify-between items-baseline"><span class="text-gray-600">Making Charges</span><span id="calc-making-charge" class="font-semibold text-gray-800">₹0.00</span></div>
+                       <div class="flex justify-between items-baseline text-xl font-bold border-t border-yellow-500/30 pt-3"><span class="text-gray-700">Subtotal</span><span id="calc-subtotal" class="text-gray-900">₹0.00</span></div>
+                       <div class="flex justify-between items-baseline"><span class="text-gray-600">GST (3%)</span><span id="calc-gst" class="font-semibold text-gray-800">₹0.00</span></div>
+                    </div>
+                     <div class="border-t-2 border-dashed border-yellow-600/50 mt-4 pt-4 text-center">
+                        <div class="flex justify-center items-center gap-2">
+                           <p class="text-lg text-yellow-800 font-semibold">Total Estimated Price</p>
+                           <button id="calc-share-btn" class="relative p-1 text-yellow-700 hover:bg-yellow-200 rounded-full transition-colors" aria-label="Share price calculation">
+                               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" /></svg>
+                               <span id="calc-share-status" class="hidden absolute -bottom-7 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded-md animate-fade-in-fast">Copied!</span>
+                           </button>
+                        </div>
+                        <p id="calc-total-price" class="text-5xl font-bold text-yellow-700 mt-1 font-tinos">₹0.00</p>
+                    </div>
+                </div>
+             </div>
+             <p class="text-center text-gray-500 mt-8 text-sm">Calculations are approximate. Final price may vary based on the final product weight and prevailing market rates.</p>
+          </section>
+
+          <!-- About Us Page -->
+          <section id="about-page" class="page hidden p-4 md:p-6 animate-fade-in space-y-8">
+              <div id="about-carousel-container"></div>
+              <div>
+                <h2 class="text-3xl md:text-4xl font-bold text-yellow-600 text-center mb-4 font-tinos flex items-center justify-center gap-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 24 24" fill="currentColor"><path d="M12 7c-1.65 0-3 1.35-3 3s1.35 3 3 3 3-1.35 3-3-1.35-3-3-3zm0 4c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1z" /><path d="M12 2C8.13 2 5 5.13 5 9c0 4.17 4.42 9.92 6.24 12.11.4.48 1.13.48 1.53 0C14.58 18.92 19 13.17 19 9c0-3.87-3.13-7-7-7zm0 11.5c-2.48 0-4.5-2.02-4.5-4.5S9.52 4.5 12 4.5s4.5 2.02 4.5 4.5-2.02 4.5-4.5 4.5z" /></svg>
+                    Our Locations
+                </h2>
+                <div id="stores-container" class="max-w-2xl mx-auto space-y-4"></div>
+              </div>
+              <div>
+                <h2 class="text-3xl md:text-4xl font-bold text-yellow-600 text-center mb-4 font-tinos">Our Directors</h2>
+                <div id="directors-container" class="max-w-2xl mx-auto space-y-4"></div>
+              </div>
+          </section>
+        </div>
+      </main>
+
+       <!-- Mobile navigation -->
+      <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg flex justify-around md:hidden">
+        <button data-tab="RATES" class="mobile-nav-btn flex-1 flex flex-col items-center justify-center p-2 transition-colors duration-300">
+           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-1" viewBox="0 0 24 24" fill="currentColor"><path d="M3 8h18v3H3V8zm0 5h18v3H3v-3z" /><path d="M2.2 6A2 2 0 0 1 4 4h16a2 2 0 0 1 1.8 2L3.8 6a2 2 0 0 1-1.6 0zM22 18a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-1h20v1z" /></svg>
+           <span class="text-xs font-medium">Rates</span>
+        </button>
+        <button data-tab="CALCULATOR" class="mobile-nav-btn flex-1 flex flex-col items-center justify-center p-2 transition-colors duration-300">
+           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-1" viewBox="0 0 24 24" fill="currentColor"><path d="M7 2h10a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm2 5h6v2H9V7zm0 4h6v2H9v-2zm0 4h6v2H9v-2zm-2-8h2v2H7V7zm0 4h2v2H7v-2zm0 4h2v2H7v-2zm10-4h2v6h-2v-6z" /></svg>
+           <span class="text-xs font-medium">Calculator</span>
+        </button>
+        <button data-tab="ABOUT" class="mobile-nav-btn flex-1 flex flex-col items-center justify-center p-2 transition-colors duration-300">
+           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-1" viewBox="0 0 24 24" fill="currentColor"><path d="M12 7c-1.65 0-3 1.35-3 3s1.35 3 3 3 3-1.35 3-3-1.35-3-3-3zm0 4c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1z" /><path d="M12 2C8.13 2 5 5.13 5 9c0 4.17 4.42 9.92 6.24 12.11.4.48 1.13.48 1.53 0C14.58 18.92 19 13.17 19 9c0-3.87-3.13-7-7-7zm0 11.5c-2.48 0-4.5-2.02-4.5-4.5S9.52 4.5 12 4.5s4.5 2.02 4.5 4.5-2.02 4.5-4.5 4.5z" /></svg>
+           <span class="text-xs font-medium">About Us</span>
+        </button>
+      </nav>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // --- STATE MANAGEMENT ---
+    let activeTab = 'RATES';
+    let goldRates = {
+        rate24k: 72500,
+        rate22k: 67100,
+        rate18k: 55200,
+    };
+    let calculatorState = {
+        weight: '10',
+        purity: '22k',
+        includeGST: true,
+        includeMaking: true,
+    };
+    const storeInfo = {
+        stores: [
+            { name: "Flagship Boutique, Mumbai", address: "123, Zaveri Bazaar, Kalbadevi, Mumbai, Maharashtra 400002", phone: "+91 22 1234 5678" },
+            { name: "Heritage Store, Jaipur", address: "45, Johari Bazaar Road, Pink City, Jaipur, Rajasthan 302003", phone: "+91 141 8765 4321" }
+        ],
+        directors: [
+            { name: "Mr. Vikram Singh Murari", title: "Founder & Chairman", bio: "With over four decades of experience, Mr. Murari's vision transformed a family legacy into a symbol of trust and exquisite craftsmanship across India." },
+            { name: "Ms. Anjali V. Murari", title: "Creative Director", bio: "A certified gemologist from GIA, Anjali infuses contemporary design with timeless traditions, appealing to the modern connoisseur." }
+        ]
+    };
+
+    // --- DOM ELEMENT SELECTORS ---
+    const pages = document.querySelectorAll('.page');
+    const mobileNavButtons = document.querySelectorAll('.mobile-nav-btn');
+    const desktopTabButtons = document.querySelectorAll('.desktop-tab-btn');
+    const adminLockBtn = document.getElementById('admin-lock-btn');
+    // Modals
+    const pinModal = document.getElementById('pin-modal');
+    const rateModal = document.getElementById('rate-modal');
+    const pinForm = document.getElementById('pin-form');
+    const pinInput = document.getElementById('pin-input');
+    const pinError = document.getElementById('pin-error');
+    const pinCancelBtn = document.getElementById('pin-cancel-btn');
+    const rateSaveBtn = document.getElementById('rate-save-btn');
+    const rateCancelBtn = document.getElementById('rate-cancel-btn');
+    const rateInputs = {
+        rate24k: document.getElementById('rate24k-input'),
+        rate22k: document.getElementById('rate22k-input'),
+        rate18k: document.getElementById('rate18k-input'),
+    };
+    // Rates Page
+    const rate24kEl = document.getElementById('rate-24k');
+    const rate22kEl = document.getElementById('rate-22k');
+    const rate18kEl = document.getElementById('rate-18k');
+    const lastUpdatedEl = document.getElementById('last-updated');
+    const ratesShareBtn = document.getElementById('rates-share-btn');
+    const ratesShareStatus = document.getElementById('rates-share-status');
+    // Calculator Page
+    const weightInput = document.getElementById('weight-input');
+    const purityButtons = document.querySelectorAll('.purity-btn');
+    const makingChargeToggle = document.getElementById('making-charge-toggle');
+    const gstToggle = document.getElementById('gst-toggle');
+    const makingChargeLabel = document.getElementById('making-charge-label');
+    const calcGoldValueEl = document.getElementById('calc-gold-value');
+    const calcMakingChargeEl = document.getElementById('calc-making-charge');
+    const calcSubtotalEl = document.getElementById('calc-subtotal');
+    const calcGstEl = document.getElementById('calc-gst');
+    const calcTotalPriceEl = document.getElementById('calc-total-price');
+    const calcShareBtn = document.getElementById('calc-share-btn');
+    const calcShareStatus = document.getElementById('calc-share-status');
+    // About Page
+    const storesContainer = document.getElementById('stores-container');
+    const directorsContainer = document.getElementById('directors-container');
+
+
+    // --- FUNCTIONS ---
+
+    const formatCurrency = (value) => `₹${value.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+    // --- Tab Navigation ---
+    const setActiveTab = (tab) => {
+        activeTab = tab;
+        pages.forEach(p => p.classList.add('hidden'));
+        document.getElementById(`${tab.toLowerCase()}-page`).classList.remove('hidden');
+
+        mobileNavButtons.forEach(btn => {
+            if (btn.dataset.tab === tab) {
+                btn.classList.add('text-yellow-600');
+                btn.classList.remove('text-gray-500', 'hover:text-yellow-500');
+            } else {
+                btn.classList.remove('text-yellow-600');
+                btn.classList.add('text-gray-500', 'hover:text-yellow-500');
+            }
+        });
+        desktopTabButtons.forEach(btn => {
+             if (btn.dataset.tab === tab) {
+                btn.classList.add('bg-yellow-500', 'text-white', 'shadow');
+                btn.classList.remove('text-gray-600', 'hover:bg-gray-200');
+            } else {
+                btn.classList.remove('bg-yellow-500', 'text-white', 'shadow');
+                btn.classList.add('text-gray-600', 'hover:bg-gray-200');
+            }
+        });
+    };
+
+    // --- Data Persistence ---
+    const saveRatesToLocalStorage = () => {
+        localStorage.setItem('goldRates', JSON.stringify(goldRates));
+    };
+
+    const loadRatesFromLocalStorage = () => {
+        const savedRates = localStorage.getItem('goldRates');
+        if (savedRates) {
+            try {
+                goldRates = JSON.parse(savedRates);
+            } catch (e) {
+                console.error("Failed to parse gold rates from localStorage", e);
+            }
+        }
+    };
+    
+    // --- UI Updates ---
+    const updateRatesUI = () => {
+        rate24kEl.textContent = `₹${goldRates.rate24k.toLocaleString('en-IN')}`;
+        rate22kEl.textContent = `₹${goldRates.rate22k.toLocaleString('en-IN')}`;
+        rate18kEl.textContent = `₹${goldRates.rate18k.toLocaleString('en-IN')}`;
+        lastUpdatedEl.textContent = new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' });
+        updateCalculatorUI();
+    };
+
+    // --- Calculator Logic ---
+    const updateCalculatorUI = () => {
+        const weight = parseFloat(calculatorState.weight) || 0;
+        const purityRate = calculatorState.purity === '22k' ? goldRates.rate22k : goldRates.rate18k;
+        const makingChargePercent = calculatorState.purity === '22k' ? 0.04 : 0.055;
+        
+        const goldValue = (purityRate / 10) * weight;
+        const makingCharge = calculatorState.includeMaking ? goldValue * makingChargePercent : 0;
+        const subTotal = goldValue + makingCharge;
+        const gstAmount = calculatorState.includeGST ? subTotal * 0.03 : 0;
+        const totalPrice = subTotal + gstAmount;
+
+        calcGoldValueEl.textContent = formatCurrency(goldValue);
+        calcMakingChargeEl.textContent = formatCurrency(makingCharge);
+        calcSubtotalEl.textContent = formatCurrency(subTotal);
+        calcGstEl.textContent = formatCurrency(gstAmount);
+        calcTotalPriceEl.textContent = formatCurrency(totalPrice);
+        
+        makingChargeLabel.textContent = `Include Making Charges (${(makingChargePercent * 100).toFixed(1)}%)`;
+
+        purityButtons.forEach(btn => {
+            if (btn.dataset.purity === calculatorState.purity) {
+                btn.classList.add('bg-yellow-500', 'text-white', 'shadow');
+                btn.classList.remove('text-gray-600', 'hover:bg-gray-300');
+            } else {
+                btn.classList.remove('bg-yellow-500', 'text-white', 'shadow');
+                btn.classList.add('text-gray-600', 'hover:bg-gray-300');
+            }
+        });
+    };
+    
+    // --- Toggle Switch UI ---
+    const setupToggle = (checkbox) => {
+        const bg = checkbox.nextElementSibling;
+        const dot = bg.nextElementSibling;
+        const update = () => {
+            if (checkbox.checked) {
+                bg.classList.add('bg-yellow-500');
+                bg.classList.remove('bg-gray-300');
+                dot.classList.add('translate-x-6');
+            } else {
+                bg.classList.remove('bg-yellow-500');
+                bg.classList.add('bg-gray-300');
+                dot.classList.remove('translate-x-6');
+            }
+        };
+        checkbox.addEventListener('change', update);
+        update(); // initial state
+    };
+    
+    // --- Sharing Logic ---
+    const handleShare = async (shareData, statusEl) => {
+         if (navigator.share) {
+            try {
+                await navigator.share(shareData);
+            } catch (error) {
+                console.error('Error sharing:', error);
+            }
+        } else {
+            try {
+                await navigator.clipboard.writeText(shareData.text);
+                statusEl.classList.remove('hidden');
+                setTimeout(() => statusEl.classList.add('hidden'), 2000);
+            } catch (error) {
+                console.error('Error copying to clipboard:', error);
+                alert('Failed to copy to clipboard.');
+            }
+        }
+    };
+
+    // --- Carousel Logic ---
+    const createCarousel = (containerId, images) => {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        let currentIndex = 0;
+        let isPlaying = true;
+        let timer;
+
+        const html = `
+            <div class="relative w-full h-48 md:h-64 rounded-lg overflow-hidden shadow-lg mb-8">
+                ${images.map((src, index) => `
+                    <img src="${src}" alt="Carousel image ${index + 1}" class="carousel-img absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${index === 0 ? 'opacity-100' : 'opacity-0'}" />
+                `).join('')}
+                <div class="absolute inset-0 bg-black/20"></div>
+                <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
+                    ${images.map((_, index) => `<button data-index="${index}" class="carousel-dot h-2 w-2 rounded-full transition-all ${index === 0 ? 'bg-yellow-500 w-4' : 'bg-gray-400/50'}"></button>`).join('')}
+                </div>
+                <button class="carousel-toggle absolute bottom-4 right-4 bg-black/30 text-white rounded-full p-2 hover:bg-black/50 transition-colors z-10" aria-label="Pause carousel">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 pause-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M5.75 4.5a.75.75 0 00-.75.75v10.5a.75.75 0 001.5 0V5.25a.75.75 0 00-.75-.75zM14.25 4.5a.75.75 0 00-.75.75v10.5a.75.75 0 001.5 0V5.25a.75.75 0 00-.75-.75z" /></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 play-icon hidden" viewBox="0 0 20 20" fill="currentColor"><path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" /></svg>
+                </button>
+            </div>`;
+        container.innerHTML = html;
+
+        const imgs = container.querySelectorAll('.carousel-img');
+        const dots = container.querySelectorAll('.carousel-dot');
+        const toggleBtn = container.querySelector('.carousel-toggle');
+        const playIcon = container.querySelector('.play-icon');
+        const pauseIcon = container.querySelector('.pause-icon');
+
+        const advanceSlide = () => {
+            currentIndex = (currentIndex + 1) % images.length;
+            updateCarousel();
+        };
+
+        const updateCarousel = () => {
+            imgs.forEach((img, index) => img.classList.toggle('opacity-100', index === currentIndex));
+            dots.forEach((dot, index) => {
+                dot.classList.toggle('bg-yellow-500', index === currentIndex);
+                dot.classList.toggle('w-4', index === currentIndex);
+                dot.classList.toggle('bg-gray-400/50', index !== currentIndex);
+            });
+            clearTimeout(timer);
+            if (isPlaying) {
+                timer = setTimeout(advanceSlide, 5000);
+            }
+        };
+
+        toggleBtn.addEventListener('click', () => {
+            isPlaying = !isPlaying;
+            playIcon.classList.toggle('hidden', isPlaying);
+            pauseIcon.classList.toggle('hidden', !isPlaying);
+            toggleBtn.setAttribute('aria-label', isPlaying ? 'Pause carousel' : 'Play carousel');
+            updateCarousel();
+        });
+
+        dots.forEach(dot => {
+            dot.addEventListener('click', (e) => {
+                currentIndex = parseInt(e.target.dataset.index, 10);
+                updateCarousel();
+            });
+        });
+
+        timer = setTimeout(advanceSlide, 5000);
+    };
+
+    // --- EVENT LISTENERS ---
+
+    // Navigation
+    [...mobileNavButtons, ...desktopTabButtons].forEach(btn => {
+        btn.addEventListener('click', () => setActiveTab(btn.dataset.tab));
+    });
+
+    // Modals
+    adminLockBtn.addEventListener('click', () => pinModal.classList.remove('hidden'));
+    pinCancelBtn.addEventListener('click', () => pinModal.classList.add('hidden'));
+    rateCancelBtn.addEventListener('click', () => rateModal.classList.add('hidden'));
+
+    pinForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (pinInput.value === "5555") {
+            pinModal.classList.add('hidden');
+            Object.keys(rateInputs).forEach(key => {
+                rateInputs[key].value = goldRates[key];
+            });
+            rateModal.classList.remove('hidden');
+            pinInput.value = '';
+            pinError.textContent = '';
+        } else {
+            pinError.textContent = "Incorrect PIN. Please try again.";
+            pinInput.value = '';
+            pinInput.focus();
+        }
+    });
+
+    rateSaveBtn.addEventListener('click', () => {
+        const newRates = {
+            rate24k: parseInt(rateInputs.rate24k.value, 10) || 0,
+            rate22k: parseInt(rateInputs.rate22k.value, 10) || 0,
+            rate18k: parseInt(rateInputs.rate18k.value, 10) || 0,
+        };
+        goldRates = newRates;
+        saveRatesToLocalStorage();
+        updateRatesUI();
+        rateModal.classList.add('hidden');
+    });
+
+    // Calculator Inputs
+    weightInput.addEventListener('input', (e) => {
+        calculatorState.weight = e.target.value;
+        updateCalculatorUI();
+    });
+    purityButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            calculatorState.purity = btn.dataset.purity;
+            updateCalculatorUI();
+        });
+    });
+    makingChargeToggle.addEventListener('change', (e) => {
+        calculatorState.includeMaking = e.target.checked;
+        updateCalculatorUI();
+    });
+    gstToggle.addEventListener('change', (e) => {
+        calculatorState.includeGST = e.target.checked;
+        updateCalculatorUI();
+    });
+    
+    // Share Buttons
+    ratesShareBtn.addEventListener('click', () => {
+        const shareText = `Today's Gold Rates from Shri Murari Jewellers:\n\n24 Karat: ₹${goldRates.rate24k.toLocaleString('en-IN')}/10g\n22 Karat: ₹${goldRates.rate22k.toLocaleString('en-IN')}/10g\n18 Karat: ₹${goldRates.rate18k.toLocaleString('en-IN')}/10g\n\nFind your perfect piece today!`;
+        handleShare({ title: "Shri Murari Jewellers Gold Rates", text: shareText }, ratesShareStatus);
+    });
+
+    calcShareBtn.addEventListener('click', () => {
+        let shareText = `Gold Price Estimate from Shri Murari Jewellers:\n\n`;
+        shareText += `Weight: ${calculatorState.weight}g\n`;
+        shareText += `Purity: ${calculatorState.purity === '22k' ? '22 Karat' : '18 Karat'}\n`;
+        shareText += `--------------------\n`;
+        shareText += `Gold Value: ${calcGoldValueEl.textContent}\n`;
+        if (calculatorState.includeMaking) shareText += `Making Charges: ${calcMakingChargeEl.textContent}\n`;
+        if (calculatorState.includeGST) shareText += `GST (3%): ${calcGstEl.textContent}\n`;
+        shareText += `--------------------\n`;
+        shareText += `Total Price: ${calcTotalPriceEl.textContent}\n\n`;
+        shareText += `Calculate your own estimate!`;
+        handleShare({ title: "Shri Murari Jewellers Price Estimate", text: shareText }, calcShareStatus);
+    });
+
+    // --- INITIALIZATION ---
+    const init = () => {
+        loadRatesFromLocalStorage();
+        setActiveTab('RATES');
+        updateRatesUI();
+
+        // Setup Toggles
+        setupToggle(makingChargeToggle);
+        setupToggle(gstToggle);
+
+        // Populate About Us Page
+        storesContainer.innerHTML = storeInfo.stores.map(store => `
+            <div class="bg-gray-50 p-6 rounded-lg border border-yellow-400/50 shadow-lg shadow-yellow-500/20">
+                <h3 class="text-2xl font-bold text-yellow-600 font-tinos mb-2">${store.name}</h3>
+                <p class="text-gray-600 mb-1">${store.address}</p>
+                <p class="text-gray-600">${store.phone}</p>
+            </div>`).join('');
+        directorsContainer.innerHTML = storeInfo.directors.map(director => `
+             <div class="bg-gray-50 p-6 rounded-lg border border-yellow-400/50 shadow-lg shadow-yellow-500/20">
+                <h3 class="text-2xl font-bold text-yellow-600 font-tinos">${director.name}</h3>
+                <p class="text-yellow-500 text-lg mb-2">${director.title}</p>
+                <p class="text-gray-600">${director.bio}</p>
+            </div>`).join('');
+
+        // Create Carousels
+        createCarousel('rates-carousel-container', [
+            'https://placehold.co/1200x400/fefce8/ca8a04?text=Exquisite+Designs',
+            'https://placehold.co/1200x400/fefce8/ca8a04?text=Timeless+Elegance',
+            'https://placehold.co/1200x400/fefce8/ca8a04?text=Pure+Perfection',
+        ]);
+        createCarousel('about-carousel-container', [
+            'https://placehold.co/1200x400/fefce8/ca8a04?text=Our+Legacy',
+            'https://placehold.co/1200x400/fefce8/ca8a04?text=A+Tradition+of+Trust',
+        ]);
+    };
+
+    init();
+});
+</script>
+  </body>
+</html>
